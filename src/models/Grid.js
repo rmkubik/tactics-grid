@@ -12,16 +12,12 @@ const Location = types.model({
 
 const Unit = types
   .model({
-    tailIcon: types.string,
-    headIcon: types.string,
     location: Location,
-    parts: types.array(Location),
-    maxLength: types.number,
+    imageKey: types.string,
   })
   .actions((self) => ({
     move(location) {
-      self.parts.unshift(location);
-      self.parts = self.parts.slice(0, self.maxLength);
+      self.location = location;
     },
   }));
 
@@ -34,11 +30,9 @@ const Grid = types
   })
   .views((self) => ({
     getUnitAtLocation(location) {
-      const selectedUnit = self.units.find((unit) => {
-        return unit.parts.some((partLocation) =>
-          compareLocations(partLocation, location)
-        );
-      });
+      const selectedUnit = self.units.find((unit) =>
+        compareLocations(unit.location, location)
+      );
 
       if (!selectedUnit) {
         return undefined;

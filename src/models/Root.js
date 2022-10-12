@@ -22,10 +22,7 @@ const initialTiles = constructMatrix(
 const units = [
   {
     location: { row: 3, col: 2 },
-    headIcon: "@",
-    tailIcon: "#",
-    parts: [{ row: 3, col: 2 }],
-    maxLength: 4,
+    imageKey: "necromancer",
   },
 ];
 

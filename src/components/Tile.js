@@ -4,35 +4,33 @@ import styled from "styled-components";
 import { useRootStore } from "../models/Root";
 
 import necromancer from "../../assets/images/Magical Supporter Asset Pack/adept necromancer/AdeptNecromancerIdle.gif";
+import skeleton from "../../assets/images/supporter pack 2/Bony Soldier/BonySoldierIdleSide.gif";
+
+const images = {
+  necromancer,
+  skeleton,
+};
 
 const TileContainer = styled.div`
   border: ${(props) =>
     props.isSelected ? "1px dashed black" : "1px dashed transparent"};
 `;
 
+const ImageContainer = styled.img`
+  width: ${(props) => `${props.theme.tileSize}px`};
+  height: ${(props) => `${props.theme.tileSize}px`};
+  image-rendering: pixelated;
+`;
+
 const Tile = ({ tile, location, isSelected, isMoveTarget, onClick }) => {
   const { grid } = useRootStore();
 
   const unitOnTile = grid.getUnitAtLocation(location);
-  const isHead = unitOnTile && compareLocations(unitOnTile.parts[0], location);
 
   let tileIcon = tile.icon;
 
   if (unitOnTile) {
-    if (isHead) {
-      tileIcon = (
-        <img
-          style={{
-            width: "32px",
-            height: "32px",
-            imageRendering: "pixelated",
-          }}
-          src={necromancer}
-        />
-      );
-    } else {
-      tileIcon = unitOnTile.tailIcon;
-    }
+    tileIcon = <ImageContainer src={images[unitOnTile.imageKey]} />;
   }
 
   if (isMoveTarget) {
