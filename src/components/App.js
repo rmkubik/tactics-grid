@@ -31,21 +31,13 @@ const App = () => {
       <Grid
         renderTile={(tile, location) => {
           const isSelected = selected && compareLocations(selected, location);
+          const selectedUnit = selected && grid.getUnitAtLocation(selected);
           const selectedNeighborLocations = selected
-            ? getNeighbors(getCrossDirections, grid.tiles, selected)
-                .filter((neighborLocation) =>
-                  isLocationInBounds(grid.tiles, neighborLocation)
-                )
-                .filter(
-                  (neighborLocation) =>
-                    !grid.getUnitAtLocation(neighborLocation)
-                )
+            ? selectedUnit.getLocationsInMoveRange(grid)
             : [];
 
-          const isUnitSelected = selected && grid.getUnitAtLocation(selected);
-
           const isMoveTarget =
-            isUnitSelected &&
+            selectedUnit &&
             selectedNeighborLocations.some((neighborLocation) =>
               compareLocations(neighborLocation, location)
             );

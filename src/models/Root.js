@@ -23,6 +23,10 @@ const units = [
   {
     location: { row: 3, col: 2 },
     imageKey: "necromancer",
+    movement: {
+      pattern: "diamond",
+      params: { range: 1 },
+    },
   },
 ];
 

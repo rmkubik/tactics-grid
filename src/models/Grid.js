@@ -1,4 +1,9 @@
-import { compareLocations } from "functional-game-utils";
+import {
+  compareLocations,
+  getCrossDirections,
+  getNeighbors,
+  isLocationInBounds,
+} from "functional-game-utils";
 import { types } from "mobx-state-tree";
 
 const Tile = types.model({
@@ -6,15 +11,32 @@ const Tile = types.model({
 });
 
 const Location = types.model({
-  row: types.number,
-  col: types.number,
+  row: types.integer,
+  col: types.integer,
 });
 
 const Unit = types
   .model({
     location: Location,
     imageKey: types.string,
+    movement: types.model({
+      pattern: types.enumeration("MovementPattern", ["diamond"]),
+      params: types.model({
+        range: types.integer,
+      }),
+    }),
   })
+  .views((self) => ({
+    getLocationsInMoveRange(grid) {
+      return getNeighbors(getCrossDirections, grid.tiles, self.location)
+        .filter((neighborLocation) =>
+          isLocationInBounds(grid.tiles, neighborLocation)
+        )
+        .filter(
+          (neighborLocation) => !grid.getUnitAtLocation(neighborLocation)
+        );
+    },
+  }))
   .actions((self) => ({
     move(location) {
       self.location = location;
