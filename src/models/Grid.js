@@ -5,6 +5,8 @@ import {
   isLocationInBounds,
 } from "functional-game-utils";
 import { types } from "mobx-state-tree";
+import getLocationsInDiamondRadius from "../utils/getLocationsInDiamondRadius";
+import getLocationsInSquareRadius from "../utils/getLocationsInSquareRadius";
 
 const Tile = types.model({
   icon: types.string,
@@ -20,7 +22,7 @@ const Unit = types
     location: Location,
     imageKey: types.string,
     movement: types.model({
-      pattern: types.enumeration("MovementPattern", ["diamond"]),
+      pattern: types.enumeration("MovementPattern", ["diamond", "square"]),
       params: types.model({
         range: types.integer,
       }),
@@ -28,7 +30,27 @@ const Unit = types
   })
   .views((self) => ({
     getLocationsInMoveRange(grid) {
-      return getNeighbors(getCrossDirections, grid.tiles, self.location)
+      let locations;
+
+      switch (self.movement.pattern) {
+        case "diamond":
+          locations = getLocationsInDiamondRadius(
+            self.location,
+            self.movement.params.range ?? 0
+          );
+          break;
+        case "square":
+          locations = getLocationsInSquareRadius(
+            self.location,
+            self.movement.params.range ?? 0
+          );
+          break;
+        default:
+          locations = [];
+          break;
+      }
+
+      return locations
         .filter((neighborLocation) =>
           isLocationInBounds(grid.tiles, neighborLocation)
         )
@@ -42,6 +64,9 @@ const Unit = types
       self.location = location;
     },
   }));
+
+console.log(getLocationsInSquareRadius({ row: 2, col: 2 }, 2));
+console.log(getLocationsInDiamondRadius({ row: 2, col: 2 }, 2));
 
 const TileRow = types.array(Tile);
 

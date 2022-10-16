@@ -32,7 +32,7 @@ const App = () => {
         renderTile={(tile, location) => {
           const isSelected = selected && compareLocations(selected, location);
           const selectedUnit = selected && grid.getUnitAtLocation(selected);
-          const selectedNeighborLocations = selected
+          const selectedNeighborLocations = selectedUnit
             ? selectedUnit.getLocationsInMoveRange(grid)
             : [];
 
