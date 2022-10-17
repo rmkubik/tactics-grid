@@ -1,0 +1,8 @@
+name="Necromancer"
+imageKey="necromancer"
+
+[movement]
+pattern="diamond"
+
+[movement.params]
+range=1

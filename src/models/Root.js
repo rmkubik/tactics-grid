@@ -1,34 +1,38 @@
-import { constructMatrix } from "functional-game-utils";
+import {
+  constructMatrix,
+  constructMatrixFromTemplate,
+} from "functional-game-utils";
 import { onSnapshot, types } from "mobx-state-tree";
 import { createContext, useContext } from "react";
 import Grid from "./Grid";
+import necromancerData from "../data/units/necromancer.toml";
+import level1Data from "../data/levels/level1.toml";
+
+const unitList = {
+  necromancer: necromancerData,
+};
+
+const units = [];
 
 const RootModel = types.model({
   grid: Grid,
 });
 
-const initialTiles = constructMatrix(
-  () => {
-    return {
-      icon: ".",
-    };
-  },
-  {
-    width: 10,
-    height: 10,
-  }
-);
+const initialTiles = constructMatrixFromTemplate((char, location) => {
+  if (char !== ".") {
+    const newUnitKey = level1Data.units[char];
+    const newUnit = unitList[newUnitKey];
 
-const units = [
-  {
-    location: { row: 3, col: 2 },
-    imageKey: "necromancer",
-    movement: {
-      pattern: "diamond",
-      params: { range: 1 },
-    },
-  },
-];
+    units.push({
+      location,
+      ...newUnit,
+    });
+  }
+
+  return {
+    icon: ".",
+  };
+}, level1Data.map.tiles);
 
 let initialState = RootModel.create({
   grid: {

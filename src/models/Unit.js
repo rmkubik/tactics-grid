@@ -6,6 +6,7 @@ import getLocationsInSquareRadius from "../utils/getLocationsInSquareRadius";
 
 const Unit = types
   .model({
+    name: types.string,
     location: Location,
     imageKey: types.string,
     movement: types.model({
