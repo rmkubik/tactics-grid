@@ -15,6 +15,7 @@ const Unit = types
         range: types.integer,
       }),
     }),
+    moved: types.optional(types.boolean, false),
   })
   .views((self) => ({
     getLocationsInMoveRange(grid) {
@@ -50,6 +51,7 @@ const Unit = types
   .actions((self) => ({
     move(location) {
       self.location = location;
+      self.moved = true;
     },
   }));
 

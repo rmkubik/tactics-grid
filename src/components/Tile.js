@@ -20,6 +20,7 @@ const ImageContainer = styled.img`
   width: ${(props) => `${props.theme.tileSize}px`};
   height: ${(props) => `${props.theme.tileSize}px`};
   image-rendering: pixelated;
+  filter: ${(props) => `${props.done ? "grayscale(1) opacity(0.5)" : ""}`};
 `;
 
 const Tile = ({ tile, location, isSelected, isMoveTarget, onClick }) => {
@@ -30,7 +31,12 @@ const Tile = ({ tile, location, isSelected, isMoveTarget, onClick }) => {
   let tileIcon = tile.icon;
 
   if (unitOnTile) {
-    tileIcon = <ImageContainer src={images[unitOnTile.imageKey]} />;
+    tileIcon = (
+      <ImageContainer
+        src={images[unitOnTile.imageKey]}
+        done={unitOnTile.moved}
+      />
+    );
   }
 
   if (isMoveTarget) {
