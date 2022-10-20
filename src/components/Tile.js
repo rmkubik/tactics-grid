@@ -34,7 +34,7 @@ const Tile = ({ tile, location, isSelected, isMoveTarget, onClick }) => {
     tileIcon = (
       <ImageContainer
         src={images[unitOnTile.imageKey]}
-        done={unitOnTile.moved}
+        done={unitOnTile.usedMove}
       />
     );
   }

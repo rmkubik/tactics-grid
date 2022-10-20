@@ -6,3 +6,9 @@ pattern="diamond"
 
 [movement.params]
 range=1
+
+[action]
+pattern="diamond"
+
+[action.params]
+range=2

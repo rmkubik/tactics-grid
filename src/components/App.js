@@ -54,7 +54,7 @@ const App = () => {
                   const selectedUnit = grid.getUnitAtLocation(selected);
 
                   if (selectedUnit) {
-                    selectedUnit.move(location);
+                    selectedUnit.tryMove(location);
                     setSelected(location);
                   }
 

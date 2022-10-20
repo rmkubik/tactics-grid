@@ -15,7 +15,14 @@ const Unit = types
         range: types.integer,
       }),
     }),
-    moved: types.optional(types.boolean, false),
+    action: types.model({
+      pattern: types.enumeration("ActionPattern", ["diamond", "square"]),
+      params: types.model({
+        range: types.integer,
+      }),
+    }),
+    usedMove: types.optional(types.boolean, false),
+    usedAction: types.optional(types.boolean, false),
   })
   .views((self) => ({
     getLocationsInMoveRange(grid) {
@@ -49,9 +56,22 @@ const Unit = types
     },
   }))
   .actions((self) => ({
-    move(location) {
+    tryMove(location) {
+      if (self.usedMove) {
+        return;
+      }
+
       self.location = location;
-      self.moved = true;
+      self.usedMove = true;
+    },
+    tryAction(location) {
+      if (self.usedAction) {
+        return;
+      }
+
+      console.log("used action", { self, location });
+
+      self.usedAction = true;
     },
   }));
 
