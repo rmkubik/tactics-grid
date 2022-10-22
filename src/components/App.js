@@ -32,13 +32,34 @@ const App = () => {
         renderTile={(tile, location) => {
           const isSelected = selected && compareLocations(selected, location);
           const selectedUnit = selected && grid.getUnitAtLocation(selected);
-          const selectedNeighborLocations = selectedUnit
+
+          // switch (true) {
+          //   case !selectedUnit.usedMove && !selectedUnit.usedAction:
+          //     break;
+          //   case selectedUnit.usedMove && !selectedUnit.usedAction:
+          //     break;
+          //   case selectedUnit.usedMove && selectedUnit.usedAction:
+          //     break;
+          // }
+
+          const selectedNeighborMoveLocations = selectedUnit
             ? selectedUnit.getLocationsInMoveRange(grid)
             : [];
-
           const isMoveTarget =
             selectedUnit &&
-            selectedNeighborLocations.some((neighborLocation) =>
+            !selectedUnit.usedMove &&
+            selectedNeighborMoveLocations.some((neighborLocation) =>
+              compareLocations(neighborLocation, location)
+            );
+
+          const selectedNeighborActionLocations = selectedUnit
+            ? selectedUnit.getLocationsInActionRange(grid)
+            : [];
+          const isActionTarget =
+            selectedUnit &&
+            selectedUnit.usedMove &&
+            !selectedUnit.usedAction &&
+            selectedNeighborActionLocations.some((neighborLocation) =>
               compareLocations(neighborLocation, location)
             );
 
@@ -49,6 +70,7 @@ const App = () => {
               location={location}
               isSelected={isSelected}
               isMoveTarget={isMoveTarget}
+              isActionTarget={isActionTarget}
               onClick={() => {
                 if (isMoveTarget) {
                   const selectedUnit = grid.getUnitAtLocation(selected);
@@ -56,6 +78,16 @@ const App = () => {
                   if (selectedUnit) {
                     selectedUnit.tryMove(location);
                     setSelected(location);
+                  }
+
+                  return;
+                }
+
+                if (isActionTarget) {
+                  const selectedUnit = grid.getUnitAtLocation(selected);
+
+                  if (selectedUnit) {
+                    selectedUnit.tryAction(location);
                   }
 
                   return;

@@ -1,8 +1,26 @@
 import { types } from "mobx-state-tree";
-import { isLocationInBounds } from "functional-game-utils";
+import { compareLocations, isLocationInBounds } from "functional-game-utils";
 import Location from "./Location";
 import getLocationsInDiamondRadius from "../utils/getLocationsInDiamondRadius";
 import getLocationsInSquareRadius from "../utils/getLocationsInSquareRadius";
+
+function getLocationsInPattern({ origin, pattern, params }) {
+  let locations;
+
+  switch (pattern) {
+    case "diamond":
+      locations = getLocationsInDiamondRadius(origin, params.range ?? 0);
+      break;
+    case "square":
+      locations = getLocationsInSquareRadius(origin, params.range ?? 0);
+      break;
+    default:
+      locations = [];
+      break;
+  }
+
+  return locations;
+}
 
 const Unit = types
   .model({
@@ -26,32 +44,30 @@ const Unit = types
   })
   .views((self) => ({
     getLocationsInMoveRange(grid) {
-      let locations;
-
-      switch (self.movement.pattern) {
-        case "diamond":
-          locations = getLocationsInDiamondRadius(
-            self.location,
-            self.movement.params.range ?? 0
-          );
-          break;
-        case "square":
-          locations = getLocationsInSquareRadius(
-            self.location,
-            self.movement.params.range ?? 0
-          );
-          break;
-        default:
-          locations = [];
-          break;
-      }
-
-      return locations
+      return getLocationsInPattern({
+        origin: self.location,
+        pattern: self.movement.pattern,
+        params: self.movement.params,
+      })
         .filter((neighborLocation) =>
           isLocationInBounds(grid.tiles, neighborLocation)
         )
         .filter(
           (neighborLocation) => !grid.getUnitAtLocation(neighborLocation)
+        );
+    },
+    getLocationsInActionRange(grid) {
+      return getLocationsInPattern({
+        origin: self.location,
+        pattern: self.action.pattern,
+        params: self.action.params,
+      })
+        .filter((neighborLocation) =>
+          isLocationInBounds(grid.tiles, neighborLocation)
+        )
+        .filter(
+          (neighborLocation) =>
+            !compareLocations(self.location, neighborLocation)
         );
     },
   }))

@@ -12,8 +12,30 @@ const images = {
 };
 
 const TileContainer = styled.div`
-  border: ${(props) =>
-    props.isSelected ? "1px dashed black" : "1px dashed transparent"};
+  border: 1px dashed transparent;
+  border-color: ${(props) => {
+    if (props.isSelected) {
+      return "black";
+    }
+    if (props.isMoveTarget) {
+      return "blue";
+    }
+    if (props.isActionTarget) {
+      return "red";
+    }
+  }};
+  background-color: ${(props) => {
+    if (props.isSelected) {
+      return "rgba(0,0,0,0.05)";
+    }
+    if (props.isMoveTarget) {
+      return "rgba(0,0,255,0.2)";
+    }
+    if (props.isActionTarget) {
+      return "rgba(255,0,0,0.2)";
+    }
+    return "";
+  }};
 `;
 
 const ImageContainer = styled.img`
@@ -23,7 +45,14 @@ const ImageContainer = styled.img`
   filter: ${(props) => `${props.done ? "grayscale(1) opacity(0.5)" : ""}`};
 `;
 
-const Tile = ({ tile, location, isSelected, isMoveTarget, onClick }) => {
+const Tile = ({
+  tile,
+  location,
+  isSelected,
+  isMoveTarget,
+  isActionTarget,
+  onClick,
+}) => {
   const { grid } = useRootStore();
 
   const unitOnTile = grid.getUnitAtLocation(location);
@@ -34,17 +63,26 @@ const Tile = ({ tile, location, isSelected, isMoveTarget, onClick }) => {
     tileIcon = (
       <ImageContainer
         src={images[unitOnTile.imageKey]}
-        done={unitOnTile.usedMove}
+        done={unitOnTile.usedMove && unitOnTile.usedAction}
       />
     );
   }
 
-  if (isMoveTarget) {
-    tileIcon = "+";
-  }
+  // if (isMoveTarget) {
+  //   tileIcon = "+";
+  // }
+
+  // if (isActionTarget) {
+  //   tileIcon = "x";
+  // }
 
   return (
-    <TileContainer isSelected={isSelected} onClick={onClick}>
+    <TileContainer
+      isSelected={isSelected}
+      isMoveTarget={isMoveTarget}
+      isActionTarget={isActionTarget}
+      onClick={onClick}
+    >
       {tileIcon}
     </TileContainer>
   );
