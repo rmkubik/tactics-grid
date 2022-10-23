@@ -1,0 +1,16 @@
+name="Skeleton"
+imageKey="skeleton"
+
+[movement]
+name="Walk"
+pattern="diamond"
+
+[movement.params]
+range=1
+
+[action]
+name="Slash"
+pattern="diamond"
+
+[action.params]
+range=1

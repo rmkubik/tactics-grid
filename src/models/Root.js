@@ -5,23 +5,29 @@ import {
 import { onSnapshot, types } from "mobx-state-tree";
 import { createContext, useContext } from "react";
 import Grid from "./Grid";
-import necromancerData from "../data/units/necromancer.toml";
-import level1Data from "../data/levels/level1.toml";
+import Battle from "./Battle";
 
-const unitList = {
-  necromancer: necromancerData,
-};
+import unitData from "../data/units";
+import levelData from "../data/levels/*.toml";
 
 const units = [];
 
 const RootModel = types.model({
   grid: Grid,
+  battle: Battle,
 });
 
 const initialTiles = constructMatrixFromTemplate((char, location) => {
+  if (char === "*") {
+    // TODO: We will make these spawn points
+    return {
+      icon: "*",
+    };
+  }
+
   if (char !== ".") {
-    const newUnitKey = level1Data.units[char];
-    const newUnit = unitList[newUnitKey];
+    const newUnitKey = levelData["level1"].units[char];
+    const newUnit = unitData[newUnitKey];
 
     units.push({
       location,
@@ -32,12 +38,16 @@ const initialTiles = constructMatrixFromTemplate((char, location) => {
   return {
     icon: ".",
   };
-}, level1Data.map.tiles);
+}, levelData["level1"].map.tiles);
 
 let initialState = RootModel.create({
   grid: {
     tiles: initialTiles,
     units,
+  },
+  battle: {
+    phase: "deployment",
+    turn: 0,
   },
 });
 

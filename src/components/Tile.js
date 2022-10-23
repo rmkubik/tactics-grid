@@ -56,7 +56,6 @@ const Tile = ({
 }) => {
   const { grid } = useRootStore();
 
-  console.log("render tile");
   const unitOnTile = grid.getUnitAtLocation(location);
 
   let tileIcon = tile.icon;
@@ -69,14 +68,6 @@ const Tile = ({
       />
     );
   }
-
-  // if (isMoveTarget) {
-  //   tileIcon = "+";
-  // }
-
-  // if (isActionTarget) {
-  //   tileIcon = "x";
-  // }
 
   return (
     <TileContainer

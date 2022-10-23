@@ -12,6 +12,7 @@ import { RootContextProvider, rootStore, useRootStore } from "../models/Root";
 import Grid from "./Grid";
 import Tile from "./Tile";
 import UnitInfo from "./UnitInfo";
+import unitData from "../data/units";
 
 const theme = {
   tileSize: 32,
@@ -25,9 +26,10 @@ const GlobalStyle = createGlobalStyle`
 
 const App = observer(() => {
   const [selected, setSelected] = useState();
-  const { grid } = useRootStore();
+  const { grid, battle } = useRootStore();
 
   const selectedUnit = selected && grid.getUnitAtLocation(selected);
+  const isDeploymentSelected = selected && grid.isDeploymentLocation(selected);
 
   return (
     <>
@@ -75,6 +77,16 @@ const App = observer(() => {
               isMoveTarget={isMoveTarget}
               isActionTarget={isActionTarget}
               onClick={() => {
+                if (battle.phase === "deployment") {
+                  if (isSelected) {
+                    setSelected();
+                    return;
+                  }
+
+                  setSelected(location);
+                  return;
+                }
+
                 if (isMoveTarget) {
                   const selectedUnit = grid.getUnitAtLocation(selected);
 
@@ -108,6 +120,41 @@ const App = observer(() => {
         }}
       />
       <UnitInfo {...selectedUnit} />
+      <hr />
+      <div>
+        <div>Phase: {battle.phase}</div>
+        <div>Turn: {battle.turn}</div>
+      </div>
+      <hr />
+      {battle.phase === "deployment" && (
+        <div>
+          <p>Unit List</p>
+          <div>
+            {Object.entries(unitData).map(([unitKey, unit]) => {
+              return (
+                <div>
+                  {unit.name}
+                  <button
+                    disabled={!isDeploymentSelected}
+                    onClick={() => grid.createUnit(selected, unitKey, true)}
+                  >
+                    Deploy
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          <button
+            onClick={() => {
+              battle.finishDeployment();
+              grid.removeDeployLocations();
+            }}
+          >
+            Finish Deployment
+          </button>
+        </div>
+      )}
+      <hr />
       <button
         onClick={() => {
           grid.resetUnits();
