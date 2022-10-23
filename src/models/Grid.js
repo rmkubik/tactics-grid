@@ -25,6 +25,11 @@ const Grid = types
 
       return selectedUnit;
     },
+  }))
+  .actions((self) => ({
+    resetUnits() {
+      self.units.forEach((unit) => unit.reset());
+    },
   }));
 
 export { Tile };

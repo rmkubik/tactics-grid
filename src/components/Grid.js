@@ -22,7 +22,10 @@ const Grid = observer(({ renderTile = () => {} }) => {
       width={width}
       onContextMenu={(event) => event.preventDefault()}
     >
-      {mapMatrix((tile, location) => renderTile(tile, location), grid.tiles)}
+      {mapMatrix(
+        (tile, location) => renderTile(tile, location, grid),
+        grid.tiles
+      )}
     </GridContainer>
   );
 });

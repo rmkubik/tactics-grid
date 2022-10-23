@@ -28,12 +28,14 @@ const Unit = types
     location: Location,
     imageKey: types.string,
     movement: types.model({
+      name: types.string,
       pattern: types.enumeration("MovementPattern", ["diamond", "square"]),
       params: types.model({
         range: types.integer,
       }),
     }),
     action: types.model({
+      name: types.string,
       pattern: types.enumeration("ActionPattern", ["diamond", "square"]),
       params: types.model({
         range: types.integer,
@@ -88,6 +90,10 @@ const Unit = types
       console.log("used action", { self, location });
 
       self.usedAction = true;
+    },
+    reset() {
+      self.usedMove = false;
+      self.usedAction = false;
     },
   }));
 

@@ -2,12 +2,14 @@ name="Necromancer"
 imageKey="necromancer"
 
 [movement]
+name="Walk"
 pattern="diamond"
 
 [movement.params]
 range=1
 
 [action]
+name="Raise"
 pattern="diamond"
 
 [action.params]

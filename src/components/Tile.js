@@ -5,6 +5,7 @@ import { useRootStore } from "../models/Root";
 
 import necromancer from "../../assets/images/Magical Supporter Asset Pack/adept necromancer/AdeptNecromancerIdle.gif";
 import skeleton from "../../assets/images/supporter pack 2/Bony Soldier/BonySoldierIdleSide.gif";
+import { observer } from "mobx-react-lite";
 
 const images = {
   necromancer,
@@ -55,6 +56,7 @@ const Tile = ({
 }) => {
   const { grid } = useRootStore();
 
+  console.log("render tile");
   const unitOnTile = grid.getUnitAtLocation(location);
 
   let tileIcon = tile.icon;
@@ -88,4 +90,4 @@ const Tile = ({
   );
 };
 
-export default Tile;
+export default observer(Tile);

@@ -5,11 +5,13 @@ import {
   getNeighbors,
   isLocationInBounds,
 } from "functional-game-utils";
+import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 import { RootContextProvider, rootStore, useRootStore } from "../models/Root";
 import Grid from "./Grid";
 import Tile from "./Tile";
+import UnitInfo from "./UnitInfo";
 
 const theme = {
   tileSize: 32,
@@ -21,17 +23,18 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const App = () => {
+const App = observer(() => {
   const [selected, setSelected] = useState();
   const { grid } = useRootStore();
+
+  const selectedUnit = selected && grid.getUnitAtLocation(selected);
 
   return (
     <>
       <GlobalStyle />
       <Grid
-        renderTile={(tile, location) => {
+        renderTile={(tile, location, grid) => {
           const isSelected = selected && compareLocations(selected, location);
-          const selectedUnit = selected && grid.getUnitAtLocation(selected);
 
           // switch (true) {
           //   case !selectedUnit.usedMove && !selectedUnit.usedAction:
@@ -104,9 +107,17 @@ const App = () => {
           );
         }}
       />
+      <UnitInfo {...selectedUnit} />
+      <button
+        onClick={() => {
+          grid.resetUnits();
+        }}
+      >
+        End Turn
+      </button>
     </>
   );
-};
+});
 
 const withProviders = (WrappedComponent) => {
   return () => {
