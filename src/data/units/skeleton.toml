@@ -2,7 +2,7 @@ name="Skeleton"
 imageKey="skeleton"
 
 [movement]
-name="Walk"
+name="Shamble"
 pattern="diamond"
 
 [movement.params]
