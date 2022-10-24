@@ -61,11 +61,26 @@ const Tile = ({
   let tileIcon = tile.icon;
 
   if (unitOnTile) {
+    const teamColors = ["red", "cyan"];
+
     tileIcon = (
-      <ImageContainer
-        src={images[unitOnTile.imageKey]}
-        done={unitOnTile.usedMove && unitOnTile.usedAction}
-      />
+      <div>
+        <svg
+          style={{
+            position: "absolute",
+            width: "8px",
+            height: "8px",
+          }}
+          viewBox="0 0 100 100"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle fill={teamColors[unitOnTile.owner]} cx="50" cy="50" r="50" />
+        </svg>
+        <ImageContainer
+          src={images[unitOnTile.imageKey]}
+          done={unitOnTile.usedMove && unitOnTile.usedAction}
+        />
+      </div>
     );
   }
 

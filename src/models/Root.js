@@ -31,6 +31,7 @@ const initialTiles = constructMatrixFromTemplate((char, location) => {
 
     units.push({
       location,
+      owner: 0,
       ...newUnit,
     });
   }

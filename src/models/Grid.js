@@ -50,7 +50,7 @@ const Grid = types
 
       self.units.splice(unitIndex, 1);
     },
-    createUnit(location, unitKey, override = false) {
+    createUnit(location, { unitKey, override = false, owner } = {}) {
       const unitAtLocation = self.getUnitAtLocation(location);
 
       if (unitAtLocation && !override) {
@@ -63,12 +63,14 @@ const Grid = types
 
       self.units.push({
         location,
+        owner,
         ...unitData[unitKey],
       });
     },
     removeDeployLocations() {
       // We are hackily using this as a
       // forEach loop.
+      //
       // I think MOBX prefers you to just
       // modify existing data structure
       // vs. creating a whole new one.

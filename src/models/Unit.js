@@ -26,6 +26,7 @@ const Unit = types
   .model({
     name: types.string,
     location: Location,
+    owner: types.number,
     imageKey: types.string,
     movement: types.model({
       name: types.string,

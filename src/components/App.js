@@ -90,6 +90,12 @@ const App = observer(() => {
                 if (isMoveTarget) {
                   const selectedUnit = grid.getUnitAtLocation(selected);
 
+                  if (selectedUnit.owner !== 1) {
+                    // Hard code player does not own
+                    // unit so player cannot move it.
+                    return;
+                  }
+
                   if (selectedUnit) {
                     selectedUnit.tryMove(location);
                     setSelected(location);
@@ -100,6 +106,12 @@ const App = observer(() => {
 
                 if (isActionTarget) {
                   const selectedUnit = grid.getUnitAtLocation(selected);
+
+                  if (selectedUnit.owner !== 1) {
+                    // Hard code player does not own
+                    // unit so player cannot move it.
+                    return;
+                  }
 
                   if (selectedUnit) {
                     selectedUnit.tryAction(location);
@@ -136,7 +148,13 @@ const App = observer(() => {
                   {unit.name}
                   <button
                     disabled={!isDeploymentSelected}
-                    onClick={() => grid.createUnit(selected, unitKey, true)}
+                    onClick={() =>
+                      grid.createUnit(selected, {
+                        unitKey,
+                        override: true,
+                        owner: 1,
+                      })
+                    }
                   >
                     Deploy
                   </button>
