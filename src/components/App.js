@@ -3,6 +3,7 @@ import {
   getCrossDirections,
   getLocation,
   getNeighbors,
+  getPath,
   isLocationInBounds,
 } from "functional-game-utils";
 import { observer } from "mobx-react-lite";
@@ -23,6 +24,12 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
 `;
+
+async function wait(timeout) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, timeout);
+  });
+}
 
 const App = observer(() => {
   const [selected, setSelected] = useState();
@@ -174,8 +181,40 @@ const App = observer(() => {
       )}
       <hr />
       <button
-        onClick={() => {
+        onClick={async () => {
           grid.resetUnits();
+          // Move Enemy Units
+          const enemyUnits = grid.getUnitsByOwner(0);
+
+          for (let unit of enemyUnits) {
+            const nearestPlayerUnit = grid.getClosestUnitOfOwner(
+              unit.location,
+              1
+            );
+
+            const path = getPath(
+              getNeighbors(getCrossDirections),
+              () => true,
+              grid.tiles,
+              unit.location,
+              nearestPlayerUnit.location
+            );
+
+            unit.tryMove(path[1]);
+
+            await wait(1000);
+          }
+
+          // - Go through each one
+          // - choose a move tile
+          //   unit should specify a strategy
+          //   default strategy is "move toward nearest enemy"
+          // - wait a second
+          // - choose an attack tile
+          //   unit should specify a strategy
+          //   default strategy is "attack nearest enemy"
+          // - wait a second
+          // - repeat until all units are done
         }}
       >
         End Turn

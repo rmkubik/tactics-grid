@@ -1,6 +1,7 @@
 import {
   compareLocations,
   getLocation,
+  manhattanDistance,
   mapMatrix,
 } from "functional-game-utils";
 import { types } from "mobx-state-tree";
@@ -39,6 +40,26 @@ const Grid = types
       const tile = getLocation(self.tiles, location);
 
       return tile.icon === "*";
+    },
+    getUnitsByOwner(owner) {
+      return self.units.filter((unit) => unit.owner === owner);
+    },
+    getClosestUnitOfOwner(location, owner) {
+      const units = self.getUnitsByOwner(owner);
+
+      let shortestDistance = Number.MAX_SAFE_INTEGER;
+      let nearestUnit;
+
+      for (unit of units) {
+        const distance = manhattanDistance(unit.location, location);
+
+        if (distance < shortestDistance) {
+          shortestDistance = distance;
+          nearestUnit = unit;
+        }
+      }
+
+      return nearestUnit;
     },
   }))
   .actions((self) => ({
