@@ -14,3 +14,12 @@ pattern="diamond"
 
 [action.params]
 range=1
+targetType="enemyUnit"
+
+[action.onHit]
+damage=1
+damageType="slashing"
+
+[stats.health]
+current=1
+natural=1

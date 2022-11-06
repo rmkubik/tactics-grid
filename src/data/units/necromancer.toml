@@ -6,7 +6,7 @@ name="Walk"
 pattern="diamond"
 
 [movement.params]
-range=1
+range=2
 
 [action]
 name="Raise"
@@ -14,3 +14,16 @@ pattern="diamond"
 
 [action.params]
 range=2
+targetType="anyUnit"
+
+[action.onHit]
+damage=1
+damageType="necrotic"
+
+[action.onKill]
+type="summon"
+summon="skeleton"
+
+[stats.health]
+current=3
+natural=3

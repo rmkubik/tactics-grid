@@ -121,7 +121,7 @@ const App = observer(() => {
                   }
 
                   if (selectedUnit) {
-                    selectedUnit.tryAction(location);
+                    selectedUnit.tryAction(location, grid);
                   }
 
                   return;
