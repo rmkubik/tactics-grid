@@ -104,7 +104,7 @@ const App = observer(() => {
                   }
 
                   if (selectedUnit) {
-                    selectedUnit.tryMove(location);
+                    selectedUnit.tryMove(location, grid);
                     setSelected(location);
                   }
 
@@ -200,21 +200,27 @@ const App = observer(() => {
               nearestPlayerUnit.location
             );
 
-            unit.tryMove(path[1]);
-
-            await wait(1000);
+            for (
+              let moveCount = 0;
+              moveCount < unit.movement.params.range;
+              moveCount += 1
+            ) {
+              console.log({
+                path,
+                moveCount,
+                range: unit.movement.params.range,
+              });
+              unit.tryMove(path[moveCount + 1], grid);
+              await wait(500);
+            }
           }
 
-          // - Go through each one
-          // - choose a move tile
-          //   unit should specify a strategy
-          //   default strategy is "move toward nearest enemy"
-          // - wait a second
-          // - choose an attack tile
-          //   unit should specify a strategy
-          //   default strategy is "attack nearest enemy"
-          // - wait a second
-          // - repeat until all units are done
+          // TODO:
+          // Support different move speeds
+          // Support pathing around obstacles
+          // Support more intelligent pathing operations
+          // Support other actions
+          // Support "strategies" in the config files
         }}
       >
         End Turn

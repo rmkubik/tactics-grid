@@ -1,5 +1,9 @@
 import { types } from "mobx-state-tree";
-import { compareLocations, isLocationInBounds } from "functional-game-utils";
+import {
+  compareLocations,
+  isLocationInBounds,
+  manhattanDistance,
+} from "functional-game-utils";
 import Location from "./Location";
 import getLocationsInDiamondRadius from "../utils/getLocationsInDiamondRadius";
 import getLocationsInSquareRadius from "../utils/getLocationsInSquareRadius";
@@ -49,6 +53,7 @@ const Stat = types
     },
   }));
 
+const ShapePatterns = types.enumeration("ShapePatterns", ["diamond", "square"]);
 const DamageTypes = types.enumeration("DamageType", [
   "necrotic",
   "slashing",
@@ -72,14 +77,14 @@ const Unit = types
     }),
     movement: types.model({
       name: types.string,
-      pattern: types.enumeration("MovementPattern", ["diamond", "square"]),
+      pattern: ShapePatterns,
       params: types.model({
         range: types.integer,
       }),
     }),
     action: types.model({
       name: types.string,
-      pattern: types.enumeration("ActionPattern", ["diamond", "square"]),
+      pattern: ShapePatterns,
       params: types.model({
         range: types.integer,
         targetType: TargetTypes,
@@ -97,7 +102,7 @@ const Unit = types
         })
       ),
     }),
-    usedMove: types.optional(types.boolean, false),
+    usedMoveCount: types.optional(types.number, 0),
     usedAction: types.optional(types.boolean, false),
   })
   .views((self) => ({
@@ -131,15 +136,33 @@ const Unit = types
     isDead() {
       return self.stats.health.current <= 0;
     },
+    get usedMove() {
+      return self.usedMoveCount === self.movement.params.range;
+    },
   }))
   .actions((self) => ({
-    tryMove(location) {
+    tryMove(location, grid) {
       if (self.usedMove) {
         return;
       }
 
+      const targetUnit = grid.getUnitAtLocation(location);
+
+      if (targetUnit) {
+        // Cannot move onto another unit
+        return;
+      }
+
+      const distance = manhattanDistance(self.location, location);
+      const newMoveCount = self.usedMoveCount + distance;
+
+      if (newMoveCount > self.movement.params.range) {
+        // Moving too far!
+        return;
+      }
+
       self.location = location;
-      self.usedMove = true;
+      self.usedMoveCount = newMoveCount;
     },
     tryAction(location, grid) {
       if (self.usedAction) {
@@ -152,8 +175,6 @@ const Unit = types
       if (!isValidTarget) {
         return;
       }
-
-      console.log("used action", { self, location });
 
       // do onHit
       if (self.action.onHit) {
@@ -181,7 +202,7 @@ const Unit = types
       self.usedAction = true;
     },
     reset() {
-      self.usedMove = false;
+      self.usedMoveCount = 0;
       self.usedAction = false;
     },
     damage(amount) {
