@@ -102,6 +102,7 @@ const Unit = types
         })
       ),
     }),
+    forcedUsedMove: types.optional(types.boolean, false),
     usedMoveCount: types.optional(types.number, 0),
     usedAction: types.optional(types.boolean, false),
   })
@@ -137,7 +138,9 @@ const Unit = types
       return self.stats.health.current <= 0;
     },
     get usedMove() {
-      return self.usedMoveCount === self.movement.params.range;
+      return (
+        self.forcedUsedMove || self.usedMoveCount === self.movement.params.range
+      );
     },
   }))
   .actions((self) => ({
@@ -204,9 +207,13 @@ const Unit = types
     reset() {
       self.usedMoveCount = 0;
       self.usedAction = false;
+      self.forcedUsedMove = false;
     },
     damage(amount) {
       self.stats.health.modifyCurrent(-amount);
+    },
+    forceUsedMove() {
+      self.forcedUsedMove = true;
     },
   }));
 

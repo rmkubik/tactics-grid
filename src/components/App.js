@@ -105,6 +105,7 @@ const App = observer(() => {
 
                   if (selectedUnit) {
                     selectedUnit.tryMove(location, grid);
+                    selectedUnit.forceUsedMove();
                     setSelected(location);
                   }
 
