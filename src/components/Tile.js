@@ -46,6 +46,27 @@ const ImageContainer = styled.img`
   filter: ${(props) => `${props.done ? "grayscale(1) opacity(0.5)" : ""}`};
 `;
 
+const ProjectileContainer = styled.div`
+  position: absolute;
+  display: none;
+`;
+
+const TeamIcon = ({ color }) => {
+  return (
+    <svg
+      style={{
+        position: "absolute",
+        width: "8px",
+        height: "8px",
+      }}
+      viewBox="0 0 100 100"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle fill={color} cx="50" cy="50" r="50" />
+    </svg>
+  );
+};
+
 const Tile = ({
   tile,
   location,
@@ -65,17 +86,11 @@ const Tile = ({
 
     tileIcon = (
       <div>
-        <svg
-          style={{
-            position: "absolute",
-            width: "8px",
-            height: "8px",
-          }}
-          viewBox="0 0 100 100"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle fill={teamColors[unitOnTile.owner]} cx="50" cy="50" r="50" />
-        </svg>
+        <TeamIcon color={teamColors[unitOnTile.owner]} />
+        {/** animate the x/y position of this projectile to shoot */}
+        <ProjectileContainer>
+          <TeamIcon color="green" />
+        </ProjectileContainer>
         <ImageContainer
           src={images[unitOnTile.imageKey]}
           done={unitOnTile.usedMove && unitOnTile.usedAction}
