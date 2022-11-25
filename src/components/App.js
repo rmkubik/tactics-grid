@@ -14,6 +14,7 @@ import Grid from "./Grid";
 import Tile from "./Tile";
 import UnitInfo from "./UnitInfo";
 import unitData from "../data/units";
+import wait from "../utils/wait";
 
 const theme = {
   tileSize: 32,
@@ -24,12 +25,6 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
 `;
-
-async function wait(timeout) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, timeout);
-  });
-}
 
 const App = observer(() => {
   const [selected, setSelected] = useState();
@@ -106,6 +101,7 @@ const App = observer(() => {
                   if (selectedUnit) {
                     selectedUnit.tryMove(location, grid);
                     selectedUnit.forceUsedMove();
+                    selectedUnit.tryAction2(grid);
                     // trigger action
                     // animate action
                     setSelected(location);
@@ -154,7 +150,7 @@ const App = observer(() => {
           <div>
             {Object.entries(unitData).map(([unitKey, unit]) => {
               return (
-                <div>
+                <div key={unitKey}>
                   {unit.name}
                   <button
                     disabled={!isDeploymentSelected}

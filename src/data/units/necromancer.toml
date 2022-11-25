@@ -27,3 +27,19 @@ summon="skeleton"
 [stats.health]
 current=3
 natural=3
+
+[action2]
+name="Raise 2"
+type="projectile"
+pattern="cross"
+
+[projectile]
+name="Necro Bolt"
+
+[projectile.onHit]
+damage=1
+damageType="necrotic"
+
+[projectile.onKill]
+type="summon"
+summon="skeleton"

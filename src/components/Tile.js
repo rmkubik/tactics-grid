@@ -1,5 +1,5 @@
 import { compareLocations } from "functional-game-utils";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useRootStore } from "../models/Root";
 
@@ -48,8 +48,41 @@ const ImageContainer = styled.img`
 
 const ProjectileContainer = styled.div`
   position: absolute;
-  display: none;
+  transition-property: transform;
+  transition-duration: 500ms;
+  transform: translate(
+    ${(props) => `${props.translate.x}px`},
+    ${(props) => `${props.translate.y}px`}
+  );
+
+  & > * {
+    left: 16px;
+    top: 16px;
+  }
 `;
+
+const Projectile = ({ origin, target, onArrived = () => {} }) => {
+  const [appliedTranslate, setAppliedTranslate] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    // TODO: don't hard code cell pixel size
+    const xDiff = (target.col - origin.col) * 32;
+    const yDiff = (target.row - origin.row) * 32;
+
+    const newTranslate = { x: xDiff, y: yDiff };
+
+    setTimeout(() => setAppliedTranslate(newTranslate));
+  }, [origin, target, setAppliedTranslate]);
+
+  return (
+    <ProjectileContainer
+      translate={appliedTranslate}
+      onTransitionEnd={onArrived}
+    >
+      <TeamIcon color="green" />
+    </ProjectileContainer>
+  );
+};
 
 const TeamIcon = ({ color }) => {
   return (
@@ -88,9 +121,16 @@ const Tile = ({
       <div>
         <TeamIcon color={teamColors[unitOnTile.owner]} />
         {/** animate the x/y position of this projectile to shoot */}
-        <ProjectileContainer>
-          <TeamIcon color="green" />
-        </ProjectileContainer>
+        {unitOnTile.projectiles.map((projectile) => {
+          return (
+            <Projectile
+              key={projectile.id}
+              origin={projectile.origin}
+              target={projectile.target}
+              onArrived={() => unitOnTile.projectileHit(projectile.id, grid)}
+            />
+          );
+        })}
         <ImageContainer
           src={images[unitOnTile.imageKey]}
           done={unitOnTile.usedMove && unitOnTile.usedAction}

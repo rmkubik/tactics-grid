@@ -1,4 +1,5 @@
-import { types } from "mobx-state-tree";
+import { v4 as uuid } from "uuid";
+import { clone, detach, flow, getSnapshot, types } from "mobx-state-tree";
 import {
   compareLocations,
   isLocationInBounds,
@@ -8,6 +9,8 @@ import Location from "./Location";
 import getLocationsInDiamondRadius from "../utils/getLocationsInDiamondRadius";
 import getLocationsInSquareRadius from "../utils/getLocationsInSquareRadius";
 import clamp from "../utils/clamp";
+import wait from "../utils/wait";
+import removeFirstMatching from "../utils/removeFirstMatching";
 
 function getLocationsInPattern({ origin, pattern, params }) {
   let locations;
@@ -53,7 +56,11 @@ const Stat = types
     },
   }));
 
-const ShapePatterns = types.enumeration("ShapePatterns", ["diamond", "square"]);
+const ShapePatterns = types.enumeration("ShapePatterns", [
+  "diamond",
+  "square",
+  "cross",
+]);
 const DamageTypes = types.enumeration("DamageType", [
   "necrotic",
   "slashing",
@@ -65,6 +72,19 @@ const TargetTypes = types.enumeration("TargetTypes", [
   "allyUnit",
   "anyUnit",
 ]);
+const ActionTypes = types.enumeration("ActionTypes", ["projectile"]);
+const Directions = types.enumeration("Directions", [
+  "up",
+  "down",
+  "left",
+  "right",
+]);
+
+const Projectile = types.model({
+  id: types.identifier,
+  origin: Location,
+  target: Location,
+});
 
 const Unit = types
   .model({
@@ -102,6 +122,33 @@ const Unit = types
         })
       ),
     }),
+    // TODO: this should replace action
+    // TODO: this should not be maybe type any more?
+    action2: types.maybe(
+      types.model({
+        name: types.string,
+        type: ActionTypes,
+        pattern: ShapePatterns,
+      })
+    ),
+    projectiles: types.optional(types.array(Projectile), []),
+    projectile: types.maybe(
+      types.model({
+        name: types.string,
+        onHit: types.maybe(
+          types.model({
+            damage: types.maybe(types.number),
+            damageType: types.maybe(DamageTypes),
+          })
+        ),
+        onKill: types.maybe(
+          types.model({
+            type: types.maybe(ActionEffects),
+            summon: types.maybe(types.string),
+          })
+        ),
+      })
+    ),
     forcedUsedMove: types.optional(types.boolean, false),
     usedMoveCount: types.optional(types.number, 0),
     usedAction: types.optional(types.boolean, false),
@@ -204,6 +251,30 @@ const Unit = types
 
       self.usedAction = true;
     },
+    tryAction2(grid) {
+      switch (self.action2.type) {
+        case "projectile":
+          console.log("pre timeout");
+          switch (self.action2.pattern) {
+            case "cross":
+              self.projectiles.push({
+                id: uuid(),
+                origin: clone(self.location),
+                target: clone(
+                  grid.getClosestUnitOfOwner(self.location, 0).location
+                ),
+              });
+              break;
+            default:
+              console.warn("Action pattern not implemented.");
+              break;
+          }
+          break;
+        default:
+          console.warn("Action type not implemented.");
+          break;
+      }
+    },
     reset() {
       self.usedMoveCount = 0;
       self.usedAction = false;
@@ -214,6 +285,45 @@ const Unit = types
     },
     forceUsedMove() {
       self.forcedUsedMove = true;
+    },
+    projectileHit(id, grid) {
+      const projectile = self.projectiles.find(
+        (projectile) => projectile.id === id
+      );
+
+      const targetLocation = clone(projectile.target);
+      const targetUnit = grid.getUnitAtLocation(targetLocation);
+
+      if (targetUnit) {
+        if (self.projectile.onHit) {
+          targetUnit.damage(self.projectile.onHit.damage);
+        }
+
+        const isTargetUnitDead = targetUnit.isDead();
+
+        // do onKill
+        if (isTargetUnitDead) {
+          grid.removeUnit(targetLocation);
+
+          if (self.projectile.onKill) {
+            switch (self.projectile.onKill.type) {
+              case "summon":
+                grid.createUnit(targetLocation, {
+                  unitKey: self.projectile.onKill.summon,
+                  owner: self.owner,
+                });
+                break;
+            }
+          }
+        }
+      }
+
+      self.usedAction = true;
+
+      removeFirstMatching(
+        self.projectiles,
+        (projectile) => projectile.id === id
+      );
     },
   }));
 
