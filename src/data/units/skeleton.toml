@@ -23,3 +23,16 @@ damageType="slashing"
 [stats.health]
 current=1
 natural=1
+
+[action2]
+name="Slash 2"
+type="pattern"
+pattern="cross"
+range=1
+
+[projectile]
+name="Slash"
+
+[projectile.onHit]
+damage=1
+damageType="slashing"

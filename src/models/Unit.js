@@ -14,6 +14,7 @@ import clamp from "../utils/clamp";
 import wait from "../utils/wait";
 import removeFirstMatching from "../utils/removeFirstMatching";
 import subtractLocations from "../utils/subtractLocations";
+import getLocationsInCrossRadius from "../utils/getLocationsInCrossRadius";
 
 function getLocationsInPattern({ origin, pattern, params }) {
   let locations;
@@ -75,7 +76,7 @@ const TargetTypes = types.enumeration("TargetTypes", [
   "allyUnit",
   "anyUnit",
 ]);
-const ActionTypes = types.enumeration("ActionTypes", ["projectile"]);
+const ActionTypes = types.enumeration("ActionTypes", ["projectile", "pattern"]);
 const Directions = types.enumeration("Directions", [
   "up",
   "down",
@@ -132,6 +133,7 @@ const Unit = types
         name: types.string,
         type: ActionTypes,
         pattern: ShapePatterns,
+        range: types.maybe(types.number),
       })
     ),
     projectiles: types.optional(types.array(Projectile), []),
@@ -297,6 +299,29 @@ const Unit = types
                 target: clone(
                   grid.getClosestUnitOfOwner(self.location, 0).location
                 ),
+              });
+              break;
+            default:
+              console.warn("Action pattern not implemented.");
+              break;
+          }
+          break;
+        case "pattern":
+          switch (self.action2.pattern) {
+            case "cross":
+              const targetLocations = getLocationsInCrossRadius(
+                self.location,
+                self.action2.range
+              ).filter(
+                (location) => !compareLocations(location, self.location)
+              );
+
+              targetLocations.forEach((target) => {
+                self.projectiles.push({
+                  id: uuid(),
+                  origin: clone(self.location),
+                  target,
+                });
               });
               break;
             default:
