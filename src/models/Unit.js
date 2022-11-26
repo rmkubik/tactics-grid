@@ -2,6 +2,8 @@ import { v4 as uuid } from "uuid";
 import { clone, detach, flow, getSnapshot, types } from "mobx-state-tree";
 import {
   compareLocations,
+  getCrossDirections,
+  getNeighbors,
   isLocationInBounds,
   manhattanDistance,
 } from "functional-game-utils";
@@ -11,6 +13,7 @@ import getLocationsInSquareRadius from "../utils/getLocationsInSquareRadius";
 import clamp from "../utils/clamp";
 import wait from "../utils/wait";
 import removeFirstMatching from "../utils/removeFirstMatching";
+import subtractLocations from "../utils/subtractLocations";
 
 function getLocationsInPattern({ origin, pattern, params }) {
   let locations;
@@ -254,9 +257,40 @@ const Unit = types
     tryAction2(grid) {
       switch (self.action2.type) {
         case "projectile":
-          console.log("pre timeout");
           switch (self.action2.pattern) {
             case "cross":
+              const neighbors = getNeighbors(
+                getCrossDirections,
+                grid.tiles,
+                self.location
+              );
+
+              const targetLocations = neighbors.map((neighborLocation) => {
+                const direction = subtractLocations(
+                  self.location,
+                  neighborLocation
+                );
+
+                const targetLocation = grid.findTargetInDirection(
+                  self.location,
+                  direction,
+                  (tile, location, grid) => {
+                    return Boolean(grid.getUnitAtLocation(location));
+                  }
+                );
+
+                return targetLocation;
+              });
+
+              targetLocations.forEach((target) => {
+                self.projectiles.push({
+                  id: uuid(),
+                  origin: clone(self.location),
+                  target,
+                });
+              });
+              break;
+            case "nearestEnemy":
               self.projectiles.push({
                 id: uuid(),
                 origin: clone(self.location),
@@ -301,7 +335,6 @@ const Unit = types
 
         const isTargetUnitDead = targetUnit.isDead();
 
-        // do onKill
         if (isTargetUnitDead) {
           grid.removeUnit(targetLocation);
 

@@ -1,4 +1,4 @@
-import { compareLocations } from "functional-game-utils";
+import { compareLocations, manhattanDistance } from "functional-game-utils";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useRootStore } from "../models/Root";
@@ -49,7 +49,7 @@ const ImageContainer = styled.img`
 const ProjectileContainer = styled.div`
   position: absolute;
   transition-property: transform;
-  transition-duration: 500ms;
+  transition-duration: ${(props) => props.steps * 100}ms;
   transform: translate(
     ${(props) => `${props.translate.x}px`},
     ${(props) => `${props.translate.y}px`}
@@ -63,6 +63,7 @@ const ProjectileContainer = styled.div`
 
 const Projectile = ({ origin, target, onArrived = () => {} }) => {
   const [appliedTranslate, setAppliedTranslate] = useState({ x: 0, y: 0 });
+  const [appliedSteps, setAppliedSteps] = useState(1);
 
   useEffect(() => {
     // TODO: don't hard code cell pixel size
@@ -70,13 +71,18 @@ const Projectile = ({ origin, target, onArrived = () => {} }) => {
     const yDiff = (target.row - origin.row) * 32;
 
     const newTranslate = { x: xDiff, y: yDiff };
+    const newSteps = manhattanDistance(origin, target);
 
-    setTimeout(() => setAppliedTranslate(newTranslate));
-  }, [origin, target, setAppliedTranslate]);
+    setTimeout(() => {
+      setAppliedSteps(newSteps);
+      setAppliedTranslate(newTranslate);
+    });
+  }, [origin, target, setAppliedTranslate, setAppliedSteps]);
 
   return (
     <ProjectileContainer
       translate={appliedTranslate}
+      steps={appliedSteps}
       onTransitionEnd={onArrived}
     >
       <TeamIcon color="green" />

@@ -1,12 +1,14 @@
 import {
   compareLocations,
   getLocation,
+  isLocationInBounds,
   manhattanDistance,
   mapMatrix,
 } from "functional-game-utils";
 import { types } from "mobx-state-tree";
 import Unit from "./Unit";
 import unitData from "../data/units";
+import addLocations from "../utils/addLocations";
 
 const Tile = types.model({
   icon: types.string,
@@ -60,6 +62,27 @@ const Grid = types
       }
 
       return nearestUnit;
+    },
+    findTargetInDirection(location, direction, targetFn = () => false) {
+      let targetLocation = location;
+
+      for (
+        targetLocation = addLocations(location, direction);
+        isLocationInBounds(self.tiles, addLocations(targetLocation, direction));
+        targetLocation = addLocations(targetLocation, direction)
+      ) {
+        if (
+          targetFn(
+            getLocation(self.tiles, targetLocation),
+            targetLocation,
+            self
+          )
+        ) {
+          break;
+        }
+      }
+
+      return targetLocation;
     },
   }))
   .actions((self) => ({
